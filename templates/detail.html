@@ -1,0 +1,170 @@
+{% extends 'base_main.html' %}
+
+{% block title %}
+    爱家-房间信息
+{% endblock %}
+
+{% block css %}
+    {{ super() }}
+    <link href="/static/plugins/swiper/css/swiper.min.css" rel="stylesheet">
+    <link href="/static/css/ihome/detail.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="top-bar">
+            <div class="nav-bar">
+                <h3 class="page-title">房间信息</h3>
+                <a class="nav-btn fl" href="#" onclick="hrefBack();"><span><i class="fa fa-angle-left fa-2x"></i></span></a>
+            </div>
+        </div>
+        <div class="swiper-container">
+            <ul class="swiper-wrapper">
+
+                <!--<li class="swiper-slide"><img src="/static/images/home02.jpg"></li>-->
+                <!--<li class="swiper-slide"><img src="/static/images/home03.jpg"></li>-->
+            </ul>
+            <!--<div class="swiper-pagination"></div>-->
+            <!--<div class="house-price">￥<span>300</span>/晚</div>-->
+        </div>
+        <div class="detail-con">
+            <div class="detail-header layout-style">
+                <h2 class="house-title">房屋标题</h2>
+                <div class="landlord-pic"><img src="/static/images/landlord01.jpg"></div>
+                <h2 class="landlord-name">房东： <span>房东姓名</span></h2>
+            </div>
+            <div class="house-info layout-style">
+               <h3>房屋地址</h3>
+               <ul class="house-info-list text-center">
+                    <li id="address">地址内容中关村</li>
+               </ul>
+            </div>
+            <ul class="house-type layout-style">
+                <li>
+                    <span class="icon-house"></span>
+                    <div class="icon-text">
+                        <h3>出租<span id="room_count"></span>间</h3>
+                        <p>房屋面积:<span id="acreage"></span>平米</p>
+                        <p>房屋户型:<span id="unit"></span></p>
+                    </div>
+                </li>
+                <li>
+                    <span class="icon-user"></span>
+                    <div class="icon-text">
+                        <h3>宜住1<span id="capacity"></span>人</h3>
+                    </div>
+                </li>
+                <li>
+                    <span class="icon-bed"></span>
+                    <div class="icon-text">
+                        <h3>卧床配置</h3>
+                        <p id="beds">双人床两张</p>
+                    </div>
+                </li>
+            </ul>
+            <div class="house-info layout-style">
+                <h3>房间详情</h3>
+                <ul class="house-info-list">
+                    <li>收取押金<span id="deposit">2000</span></li>
+                    <li>最少入住天数<span id="min_days">1</span></li>
+                    <li>最多入住天数<span id="max_days">无限制</span></li>
+                </ul>
+            </div>
+            <div class="house-facility layout-style">
+                <h3>配套设施</h3>
+                <ul class="house-facility-list clearfix">
+                </ul>
+            </div>
+            <div class="house-info layout-style">
+                <h3>评价信息</h3>
+                <ul class="house-comment-list">
+                    <li>
+                        <p>用户名<span class="fr">2016-11-11 20:00:00</span></p>
+                        <p>感觉不错</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <a class="book-house" href="">即刻预定</a>
+        <div class="footer">
+            <p><span><i class="fa fa-copyright"></i></span>爱家租房&nbsp;&nbsp;享受家的温馨</p>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    {{ super() }}
+    <script src="/static/plugins/swiper/js/swiper.jquery.min.js"></script>
+    <script src="/static/js/template.js"></script>
+    <script src="/static/js/ihome/detail.js"></script>
+
+    <script>
+        var id = location.search
+        house_id = id.split('=')[1]
+        var image = []
+        $.ajax({
+            url: '/hous/house_detail/' + house_id + '/',
+            dataType: 'json',
+            type: 'GET',
+            success: function(data){
+                if(data.code=='200'){
+                    console.log(data.image)
+                    $('.landlord-name span').text(data.house.user_name)
+                    $('#address').text(data.house.address)
+                    $('#room_count').text(data.house.room_count)
+                    $('#acreage').text(data.house.acreage)
+                    $('#unit').text(data.house.unit)
+                    $('#capacity').text(data.house.capacity)
+                    $('#beds').text(data.house.beds)
+                    $('#deposit').text(data.house.deposit)
+                    $('#min_days').text(data.house.min_days)
+                    $('#max_days').text(data.house.max_days)
+                    $('.book-house').attr('href', '/order/booking/?house_id=' + data.house.id)
+
+                    for(var i=0; i<data.house.images.length; i++){
+                        $('.swiper-wrapper').append("<li class='swiper-slide'><img src='/static/media/"+ data.house.images[i] +"'></li>")
+                    }
+                    for(var j=0; j<data.house.facilities.length; j++){
+                        $('.house-facility-list').append("<li><span class='"+ data.house.facilities[j].css +"'></span>"+ data.house.facilities[j].name +"</li>")
+                    }
+                    var mySwiper = new Swiper ('.swiper-container', {
+                        loop: true,
+                        autoplay: 2000,
+                        autoplayDisableOnInteraction: false,
+                        pagination: '.swiper-pagination',
+                        paginationType: 'fraction'
+                    })
+                }else if(data.code=='7000'){
+                    $('.book-house').hide()
+                    $('.landlord-name span').text(data.house.user_name)
+                    $('#address').text(data.house.address)
+                    $('#room_count').text(data.house.room_count)
+                    $('#acreage').text(data.house.acreage)
+                    $('#unit').text(data.house.unit)
+                    $('#capacity').text(data.house.capacity)
+                    $('#beds').text(data.house.beds)
+                    $('#deposit').text(data.house.deposit)
+                    $('#min_days').text(data.house.min_days)
+                    $('#max_days').text(data.house.max_days)
+                    $('.book-house').attr('href', '/order/booking/?house_id=' + data.house.id)
+
+                    for(var i=0; i<data.house.images.length; i++){
+                        $('.swiper-wrapper').append("<li class='swiper-slide'><img src='/static/media/"+ data.house.images[i] +"'></li>")
+                    }
+                    for(var j=0; j<data.house.facilities.length; j++){
+                        $('.house-facility-list').append("<li><span class='"+ data.house.facilities[j].css +"'></span>"+ data.house.facilities[j].name +"</li>")
+                    }
+                    var mySwiper = new Swiper ('.swiper-container', {
+                        loop: true,
+                        autoplay: 2000,
+                        autoplayDisableOnInteraction: false,
+                        pagination: '.swiper-pagination',
+                        paginationType: 'fraction'
+                    })
+                }
+            },
+            error: function(data){
+                alert('sorry')
+            }
+        })
+    </script>
+{% endblock %}
